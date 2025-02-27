@@ -1,15 +1,39 @@
 package entidades;
 
-public class Cliente {
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
+import java.util.List;
+
+@Entity
+public class Cliente extends PanacheEntity {
+    @GeneratedValue
     private Long id;
     private String primerNombre;
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
+
+    @OneToOne
+    @Cascade(CascadeType.ALL)
     private Correo correo;
-    private Direccion direccion;
-    private Telefono telefono;
+
+    @OneToMany
+    @Cascade(CascadeType.ALL)
+    private List<Direccion> direcciones;
+
+    @OneToMany
+    @Cascade(CascadeType.ALL)
+    private List<Telefono> telefonos;
+
+    @OneToOne
+    @Cascade(CascadeType.ALL)
     private Pais pais;
+
+    @OneToOne
+    @Cascade(CascadeType.ALL)
     private Gentilicio gentilicio;
 
     public Cliente() {
@@ -18,8 +42,8 @@ public class Cliente {
         this.primerApellido = "Mendez";
         this.segundoApellido = "Ortiz";
         this.correo = new Correo();
-        this.direccion = new Direccion();
-        this.telefono = new Telefono();
+//        this.direccion = new Direccion();
+//        this.telefono = new Telefono();
         this.pais = new Pais();
         this.gentilicio = new Gentilicio();
     }
@@ -72,20 +96,20 @@ public class Cliente {
         this.correo = correo;
     }
 
-    public Direccion getDireccion() {
-        return direccion;
+    public List<Direccion> getDirecciones() {
+        return direcciones;
     }
 
-    public void setDireccion(Direccion direccion) {
-        this.direccion = direccion;
+    public void setDirecciones(List<Direccion> direcciones) {
+        this.direcciones = direcciones;
     }
 
-    public Telefono getTelefono() {
-        return telefono;
+    public List<Telefono> getTelefonos() {
+        return telefonos;
     }
 
-    public void setTelefono(Telefono telefono) {
-        this.telefono = telefono;
+    public void setTelefonos(List<Telefono> telefonos) {
+        this.telefonos = telefonos;
     }
 
     public Pais getPais() {
@@ -112,8 +136,8 @@ public class Cliente {
                 ", primerApellido='" + primerApellido + '\'' +
                 ", segundoApellido='" + segundoApellido + '\'' +
                 ", correo=" + correo +
-                ", direccion=" + direccion +
-                ", telefono=" + telefono +
+                ", direccion=" + direcciones +
+                ", telefono=" + telefonos +
                 ", pais=" + pais +
                 ", gentilicio=" + gentilicio +
                 '}';
