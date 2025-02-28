@@ -1,7 +1,13 @@
 package dto;
 
 import entidades.*;
-
+/** Esta clase representa la version del DTO (Data Transfer Object) de la entidad Cliente
+ * utilizada para la transferencia de datos, evitando el uso directo del objeto original
+ * de tipo Cliente.
+ *
+ * @author Bladimir Baez
+ * @version 1.0.0
+ * */
 public class ClienteDTO {
     private Long id;
     private String primerNombre;

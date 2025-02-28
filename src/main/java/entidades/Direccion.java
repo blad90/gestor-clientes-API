@@ -7,6 +7,12 @@ import jakarta.persistence.OneToOne;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+/** Esta clase representa la entidad Direccion, que incluye los datos basicos
+ * de la direccion del cliente.
+ *
+ * @author Bladimir Baez
+ * @version 1.0.0
+ * */
 @Entity
 public class Direccion {
     @Id

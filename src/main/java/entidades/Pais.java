@@ -4,6 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 
+/** Esta clase representa la entidad Pais, que contiene atributos que representan
+ * los datos de un determinado pais.
+ *
+ * @author Bladimir Baez
+ * @version 1.0.0
+ * */
 @Entity
 public class Pais {
     @Id

@@ -2,6 +2,10 @@ package servicios;
 
 import dto.ClienteDTO;
 import entidades.Cliente;
+import excepciones.ClienteNoEncontradoException;
+import excepciones.CorreoInvalidoException;
+import excepciones.DatoInvalidoClienteException;
+import excepciones.TelefonoInvalidoException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -11,6 +15,15 @@ import recursos.GestorCliente;
 import repositorios.ClienteRepositorio;
 
 import java.util.List;
+
+/**
+ * Esta clase es responsable de realizar las operaciones relacionadas
+ * al cliente, que incluye crear, acceder a un cliente por identificador, modificar, remover,
+ * y otros metodos de utilidad.
+ *
+ * @author Bladimir Baez
+ * @version 1.0.0
+ */
 
 @ApplicationScoped
 public class GestorClienteServicio {
@@ -26,18 +39,18 @@ public class GestorClienteServicio {
     IGentilicioServicio gentilicioServicio;
 
     @Transactional
-    public Response crearCliente(ClienteDTO clienteDTO){
+    public Response crearCliente(ClienteDTO clienteDTO) {
         Cliente cliente = convertirACliente(clienteDTO);
         clienteRepositorio.persist(cliente);
         return Response.ok(cliente).status(Response.Status.CREATED).build();
     }
 
-    public Response obtenerClientes(){
+    public Response obtenerClientes() {
         List<ClienteDTO> clientesDTOExistentes = clienteRepositorio.listAll().stream().map(this::convertirAClienteDTO).toList();
         return Response.ok(clientesDTOExistentes).build();
     }
 
-    public Response obtenerClientesPorPais(String codigoPais){
+    public Response obtenerClientesPorPais(String codigoPais) {
         List<ClienteDTO> clientesPorPais = clienteRepositorio
                 .listAll()
                 .stream()
@@ -46,29 +59,52 @@ public class GestorClienteServicio {
         return Response.ok(clientesPorPais).build();
     }
 
-    public Response obtenerClientePorId(Long id){
-        ClienteDTO clienteDTO = convertirAClienteDTO(clienteRepositorio.findById(id));
-        if(clienteDTO == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok(clienteDTO).build();
-    }
-
-    public Response actualizarClientePorId(Long id){
-        Cliente clienteParaModificar = clienteRepositorio.findById(id);
-        if(clienteParaModificar == null) return Response.status(Response.Status.NOT_FOUND).build();
-        return Response.ok().build();
+    public Response obtenerClientePorId(Long id) throws ClienteNoEncontradoException{
+        Cliente clienteAObtener = clienteRepositorio.findById(id);
+        ClienteDTO clienteDTO;
+        if (clienteAObtener != null) {
+            clienteDTO = convertirAClienteDTO(clienteAObtener);
+            return Response.ok(clienteDTO).build();
+        } else throw new ClienteNoEncontradoException("Cliente con el ID# " + id + " no existe.");
     }
 
     @Transactional
-    public Response eliminarClientePorId(Long id){
-        Cliente clienteParaRemover = clienteRepositorio.findById(id);
-        if(clienteParaRemover == null) return Response.status(Response.Status.NOT_FOUND).build();
+    public Response actualizarClientePorId(Long id, ClienteDTO clienteDTO) throws ClienteNoEncontradoException, TelefonoInvalidoException{
+        Cliente clienteParaModificar = clienteRepositorio.findById(id);
+        ClienteDTO clienteDTOActualizado;
+        if (clienteParaModificar != null) {
+            clienteParaModificar.setCorreo(clienteDTO.getCorreo());
+            clienteParaModificar.setDireccion(clienteDTO.getDireccion());
+            clienteParaModificar.setTelefono(clienteDTO.getTelefono());
+            clienteParaModificar.setPais(clienteDTO.getPais());
+            clienteRepositorio.persist(clienteParaModificar);
 
+            clienteDTOActualizado = convertirAClienteDTO(clienteParaModificar);
+            return Response.ok(clienteDTOActualizado).build();
+        } else throw new ClienteNoEncontradoException("Cliente a actualizar con el ID# " + id + " no existe.");
+    }
+
+    @Transactional
+    public Response eliminarClientePorId(Long id) throws ClienteNoEncontradoException {
+        Cliente clienteParaRemover;
+
+        clienteParaRemover = clienteRepositorio.findById(id);
+        if (clienteParaRemover == null) {
+            throw new ClienteNoEncontradoException("Cliente a remover con el ID# " + id + " no existe.");
+        }
         clienteRepositorio.delete(clienteParaRemover);
-
         return Response.ok().build();
     }
 
-    private ClienteDTO convertirAClienteDTO(Cliente cliente){
+    /**
+     * Metodo de utilidad que se encarga de convertir un objeto de tipo Cliente a version DTO
+     * garantizando la integridad de los atributos de la entidad y que no puedan ser modificados
+     * directamente.
+     *
+     * @param cliente representa el objeto de la entidad Cliente
+     * @return ClienteDTO
+     */
+    private ClienteDTO convertirAClienteDTO(Cliente cliente) {
         ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(cliente.getId());
         clienteDTO.setPrimerNombre(cliente.getPrimerNombre());
@@ -83,18 +119,29 @@ public class GestorClienteServicio {
         return clienteDTO;
     }
 
-    private Cliente convertirACliente(ClienteDTO clienteDTO){
+    /**
+     * Metodo de utilidad que se encarga de convertir un objeto DTO a version Cliente
+     * con el fin de persistir el objeto original en el repositorio.
+     *
+     * @param clienteDTO representa la version DTO a convertir del objeto de la entidad Cliente
+     * @return Cliente
+     */
+    private Cliente convertirACliente(ClienteDTO clienteDTO) {
         Cliente cliente = new Cliente();
         cliente.setId(clienteDTO.getId());
-        cliente.setPrimerNombre(clienteDTO.getPrimerNombre());
-        cliente.setSegundoNombre(clienteDTO.getSegundoNombre());
-        cliente.setPrimerApellido(clienteDTO.getPrimerApellido());
-        cliente.setSegundoApellido(clienteDTO.getSegundoApellido());
-        cliente.setCorreo(clienteDTO.getCorreo());
-        cliente.setDireccion(clienteDTO.getDireccion());
-        cliente.setTelefono(clienteDTO.getTelefono());
-        cliente.setPais(clienteDTO.getPais());
-        cliente.setGentilicio(clienteDTO.getGentilicio());
+        try {
+            cliente.setPrimerNombre(clienteDTO.getPrimerNombre());
+            cliente.setSegundoNombre(clienteDTO.getSegundoNombre());
+            cliente.setPrimerApellido(clienteDTO.getPrimerApellido());
+            cliente.setSegundoApellido(clienteDTO.getSegundoApellido());
+            cliente.setCorreo(clienteDTO.getCorreo());
+            cliente.setDireccion(clienteDTO.getDireccion());
+            cliente.setTelefono(clienteDTO.getTelefono());
+            cliente.setPais(clienteDTO.getPais());
+            cliente.setGentilicio(clienteDTO.getGentilicio());
+        } catch (DatoInvalidoClienteException | TelefonoInvalidoException e) {
+            throw new RuntimeException(e);
+        }
         return cliente;
     }
 }
