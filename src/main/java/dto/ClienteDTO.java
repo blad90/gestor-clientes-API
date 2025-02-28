@@ -1,44 +1,19 @@
-package entidades;
+package dto;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
+import entidades.*;
 
-import java.util.List;
-
-@Entity
-public class Cliente extends PanacheEntity {
-    @GeneratedValue
+public class ClienteDTO {
     private Long id;
     private String primerNombre;
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
 
-    @OneToOne
-    @Cascade(CascadeType.ALL)
     private Correo correo;
-
-    @OneToOne
-    @Cascade(CascadeType.ALL)
     private Direccion direccion;
-
-    @OneToOne
-    @Cascade(CascadeType.ALL)
     private Telefono telefono;
-
-    @OneToOne
-    @Cascade(CascadeType.ALL)
     private Pais pais;
-
-    @OneToOne
-    @Cascade(CascadeType.ALL)
     private Gentilicio gentilicio;
-
-    public Cliente() {
-
-    }
 
     public Long getId() {
         return id;
@@ -118,5 +93,21 @@ public class Cliente extends PanacheEntity {
 
     public void setGentilicio(Gentilicio gentilicio) {
         this.gentilicio = gentilicio;
+    }
+
+    @Override
+    public String toString() {
+        return "ClienteDTO{" +
+                "id=" + id +
+                ", primerNombre='" + primerNombre + '\'' +
+                ", segundoNombre='" + segundoNombre + '\'' +
+                ", primerApellido='" + primerApellido + '\'' +
+                ", segundoApellido='" + segundoApellido + '\'' +
+                ", correo=" + correo +
+                ", direccion=" + direccion +
+                ", telefono=" + telefono +
+                ", pais=" + pais +
+                ", gentilicio=" + gentilicio +
+                '}';
     }
 }

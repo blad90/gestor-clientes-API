@@ -6,11 +6,11 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Pais {
-
-    private String nombrePais;
     @Id
     @GeneratedValue
     private Long id;
+    private String nombrePais;
+    private String codigoPais;
 
     public String getNombrePais() {
         return nombrePais;
@@ -20,18 +20,28 @@ public class Pais {
         this.nombrePais = nombrePais;
     }
 
-    @Override
-    public String toString() {
-        return "Pais{" +
-                "nombrePais='" + nombrePais + '\'' +
-                '}';
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public String getCodigoPais() {
+        return codigoPais;
+    }
+
+    public void setCodigoPais(String codigoPais) {
+        this.codigoPais = codigoPais;
+    }
+
+    @Override
+    public String toString() {
+        return "Pais{" +
+                "id=" + id +
+                ", nombrePais='" + nombrePais + '\'' +
+                ", codigoPais='" + codigoPais + '\'' +
+                '}';
     }
 }

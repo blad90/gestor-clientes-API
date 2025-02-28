@@ -6,12 +6,10 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Correo {
-
-    private String usuarioCorreo;
     @Id
     @GeneratedValue
     private Long id;
-
+    private String usuarioCorreo;
 
     public Correo() {
     }
@@ -23,11 +21,7 @@ public class Correo {
     }
 
     private boolean esCorreoValido(String correo){
-        if(correo.matches("^/S+@/S+/./S+$")){
-            System.out.println("Here");
-            return true;
-        }
-        return false;
+       return correo.matches("^\\S+@\\S+\\.\\S+$");
     }
 
     public void setId(Long id) {
@@ -36,5 +30,13 @@ public class Correo {
 
     public Long getId() {
         return id;
+    }
+
+    public String getUsuarioCorreo() {
+        return usuarioCorreo;
+    }
+
+    public void setUsuarioCorreo(String usuarioCorreo) {
+        if(esCorreoValido(usuarioCorreo)) this.usuarioCorreo = usuarioCorreo;
     }
 }

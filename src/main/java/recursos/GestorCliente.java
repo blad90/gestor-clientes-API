@@ -1,15 +1,12 @@
 package recursos;
 
+import dto.ClienteDTO;
 import entidades.Cliente;
-import entidades.Pais;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import servicios.GestorClienteServicio;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Path("/clientes")
 public class GestorCliente {
@@ -19,9 +16,10 @@ public class GestorCliente {
 
     @POST
     @Path("crear")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response crearCliente(Cliente nuevoCliente){
-        return gestorClienteServicio.crearCliente(nuevoCliente);
+    public Response crearCliente(ClienteDTO nuevoClienteDTO){
+        return gestorClienteServicio.crearCliente(nuevoClienteDTO);
     }
 
     @GET()
@@ -32,7 +30,7 @@ public class GestorCliente {
     }
 
     @GET()
-    @Path("pais/todos/{pais}")
+    @Path("todos/{pais}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response obtenerClientesPorPais(@PathParam(value = "pais") String nombrePais){
         return gestorClienteServicio.obtenerClientesPorPais(nombrePais);
@@ -41,14 +39,14 @@ public class GestorCliente {
     @GET
     @Path("id/{idcliente}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response obtenerClientePorId(@PathParam("idcliente") String id){
+    public Response obtenerClientePorId(@PathParam("idcliente") Long id){
         return gestorClienteServicio.obtenerClientePorId(id);
     }
 
     @PATCH
     @Path("actualizar/{idcliente}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response actualizarClientePorId(@PathParam("idcliente") String id){
+    public Response actualizarClientePorId(@PathParam("idcliente") Long id){
         return gestorClienteServicio.actualizarClientePorId(id);
     }
 
