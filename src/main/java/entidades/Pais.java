@@ -18,6 +18,13 @@ public class Pais {
     private String nombrePais;
     private String codigoPais;
 
+    public Pais() {
+    }
+
+    public Pais(String codigoPais) {
+        this.codigoPais = codigoPais;
+    }
+
     public String getNombrePais() {
         return nombrePais;
     }

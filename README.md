@@ -1,6 +1,16 @@
 # Gestor Clientes API
 
-Este proyecto utiliza `Quarkus`, un framework de Java.
+Consiste en un servicio API para la gestion de clientes. Este proyecto utiliza `Quarkus`, un framework de Java.
+
+Entre los endpoints principales:
+
+* GET:`/api/clientes/crear`
+* GET: `/api/clientes/todos`
+* GET: `/api/clientes/id/{id}`
+* GET: `/api/clientes/{codigoPais}`
+* GET: `/api/clientes/todos/{pais}`
+* PATCH: `/api/clientes/actualizar/{id}`
+* DELETE: `/api/clientes/eliminar/{id}`
 
 ## Ejecutar la aplicacion en modo dev
 

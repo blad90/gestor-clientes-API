@@ -19,6 +19,13 @@ public class Telefono {
     private Long id;
     private String numeroTelefono;
 
+    public Telefono() {
+    }
+
+    public Telefono(String numeroTelefono) {
+        if(esTelefonoValido(numeroTelefono)) this.numeroTelefono = numeroTelefono;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -32,12 +39,16 @@ public class Telefono {
     }
 
     public void setNumeroTelefono(String numeroTelefono) throws TelefonoInvalidoException {
-        if(numeroTelefono.matches("^[0-9]{3}-[0-9]{3}-[0-9]{4}$")) {
+        if(esTelefonoValido(numeroTelefono)) {
             this.numeroTelefono = numeroTelefono;
         } else {
             throw new TelefonoInvalidoException("El numero provisto : " + numeroTelefono + " no tiene un formato valido. \nEjemplos:" +
                     "Ej1: 809-555-5555\n");
         }
 
+    }
+
+    private boolean esTelefonoValido(String numeroTelefono){
+        return numeroTelefono.matches("^[0-9]{3}-[0-9]{3}-[0-9]{4}$");
     }
 }

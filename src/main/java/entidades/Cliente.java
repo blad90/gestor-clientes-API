@@ -1,11 +1,12 @@
 package entidades;
 
 import excepciones.DatoInvalidoClienteException;
-import excepciones.TelefonoInvalidoException;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
+
+import java.io.Serializable;
 
 /** Esta clase representa la entidad Cliente, la cual incluye
  * atributos basicos, asi como atributos compuestos como Correo,
@@ -15,7 +16,7 @@ import org.hibernate.annotations.CascadeType;
  * @version 1.0.0
  * */
 @Entity
-public class Cliente extends PanacheEntity {
+public class Cliente extends PanacheEntity implements Serializable {
     @GeneratedValue
     private Long id;
     private String primerNombre;
@@ -125,7 +126,7 @@ public class Cliente extends PanacheEntity {
         return telefono;
     }
 
-    public void setTelefono(Telefono telefono) throws TelefonoInvalidoException {
+    public void setTelefono(Telefono telefono) {
         this.telefono = telefono;
     }
 

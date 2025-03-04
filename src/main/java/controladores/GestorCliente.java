@@ -1,8 +1,9 @@
-package recursos;
+package controladores;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.ClienteDTO;
+import utils.GentilicioExtractorJson;
 import excepciones.ClienteNoEncontradoException;
-import excepciones.TelefonoInvalidoException;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -23,7 +24,7 @@ public class GestorCliente {
         return gestorClienteServicio.crearCliente(nuevoClienteDTO);
     }
 
-    @GET()
+    @GET
     @Path("todos")
     @Produces(MediaType.APPLICATION_JSON)
     public Response obtenerClientes(){
@@ -41,11 +42,7 @@ public class GestorCliente {
     @Path("id/{idcliente}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response obtenerClientePorId(@PathParam("idcliente") Long id){
-        try {
             return gestorClienteServicio.obtenerClientePorId(id);
-        } catch (ClienteNoEncontradoException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
     }
 
     @PATCH
@@ -53,13 +50,7 @@ public class GestorCliente {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response actualizarClientePorId(@PathParam("idcliente") Long id, ClienteDTO clienteDTO){
-        try {
             return gestorClienteServicio.actualizarClientePorId(id, clienteDTO);
-        } catch (ClienteNoEncontradoException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (TelefonoInvalidoException e) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-        }
     }
 
     @DELETE
@@ -71,5 +62,12 @@ public class GestorCliente {
         } catch (ClienteNoEncontradoException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
+    }
+
+    @GET
+    @Path("/{codigoPais}")
+    public Response obtenerGentilicioPorPais(@PathParam("codigoPais") String codigoPais) throws JsonProcessingException {
+        String gentilicio = GentilicioExtractorJson.extraerValorGentilicio(gestorClienteServicio.obtenerGentiliciosPorPais(codigoPais));
+        return Response.ok(gentilicio).build();
     }
 }

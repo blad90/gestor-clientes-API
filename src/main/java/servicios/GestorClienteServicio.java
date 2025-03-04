@@ -2,18 +2,18 @@ package servicios;
 
 import dto.ClienteDTO;
 import entidades.Cliente;
+import entidades.Gentilicio;
 import excepciones.ClienteNoEncontradoException;
-import excepciones.CorreoInvalidoException;
 import excepciones.DatoInvalidoClienteException;
-import excepciones.TelefonoInvalidoException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import recursos.GestorCliente;
+import controladores.GestorCliente;
 import repositorios.ClienteRepositorio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,32 +46,51 @@ public class GestorClienteServicio {
     }
 
     public Response obtenerClientes() {
-        List<ClienteDTO> clientesDTOExistentes = clienteRepositorio.listAll().stream().map(this::convertirAClienteDTO).toList();
-        return Response.ok(clientesDTOExistentes).build();
+            List<ClienteDTO> clientesDTOExistentes = clienteRepositorio.listAll().stream().map(c -> {
+                try {
+                    return convertirAClienteDTO(c);
+                } catch (DatoInvalidoClienteException e) {
+                    throw new RuntimeException(e);
+                }
+            }).toList();
+            return Response.ok(clientesDTOExistentes).build();
     }
 
     public Response obtenerClientesPorPais(String codigoPais) {
-        List<ClienteDTO> clientesPorPais = clienteRepositorio
-                .listAll()
-                .stream()
-                .filter(cliente -> cliente.getPais().getCodigoPais().equals(codigoPais))
-                .map(this::convertirAClienteDTO).toList();
+        List<ClienteDTO> clientesPorPais = new ArrayList<>();
+        for(Cliente cliente: clienteRepositorio.listAll()){
+            try{
+                if(cliente.getPais().getCodigoPais().equals(codigoPais)){
+                    clientesPorPais.add(convertirAClienteDTO(cliente));
+                }
+            } catch (DatoInvalidoClienteException e){
+                return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+            }
+        }
         return Response.ok(clientesPorPais).build();
     }
 
-    public Response obtenerClientePorId(Long id) throws ClienteNoEncontradoException{
+    public Response obtenerClientePorId(Long id) {
         Cliente clienteAObtener = clienteRepositorio.findById(id);
-        ClienteDTO clienteDTO;
+        ClienteDTO clienteDTO = new ClienteDTO();
         if (clienteAObtener != null) {
-            clienteDTO = convertirAClienteDTO(clienteAObtener);
-            return Response.ok(clienteDTO).build();
-        } else throw new ClienteNoEncontradoException("Cliente con el ID# " + id + " no existe.");
+            try {
+                clienteDTO = convertirAClienteDTO(clienteAObtener);
+                return Response.ok(clienteDTO).build();
+            } catch (DatoInvalidoClienteException e) {
+//                throw new ClienteNoEncontradoException("Cliente con el ID# " + id + " no existe.");
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     @Transactional
-    public Response actualizarClientePorId(Long id, ClienteDTO clienteDTO) throws ClienteNoEncontradoException, TelefonoInvalidoException{
+    public Response actualizarClientePorId(Long id, ClienteDTO clienteDTO) {
         Cliente clienteParaModificar = clienteRepositorio.findById(id);
-        ClienteDTO clienteDTOActualizado;
+        ClienteDTO clienteDTOActualizado = new ClienteDTO();
+
         if (clienteParaModificar != null) {
             clienteParaModificar.setCorreo(clienteDTO.getCorreo());
             clienteParaModificar.setDireccion(clienteDTO.getDireccion());
@@ -79,9 +98,12 @@ public class GestorClienteServicio {
             clienteParaModificar.setPais(clienteDTO.getPais());
             clienteRepositorio.persist(clienteParaModificar);
 
-            clienteDTOActualizado = convertirAClienteDTO(clienteParaModificar);
-            return Response.ok(clienteDTOActualizado).build();
-        } else throw new ClienteNoEncontradoException("Cliente a actualizar con el ID# " + id + " no existe.");
+            try {
+                clienteDTOActualizado = convertirAClienteDTO(clienteParaModificar);
+            } catch (DatoInvalidoClienteException e) {
+                return Response.noContent().build();
+            }
+        } return Response.ok(clienteDTOActualizado).build();
     }
 
     @Transactional
@@ -93,7 +115,7 @@ public class GestorClienteServicio {
             throw new ClienteNoEncontradoException("Cliente a remover con el ID# " + id + " no existe.");
         }
         clienteRepositorio.delete(clienteParaRemover);
-        return Response.ok().build();
+        return Response.noContent().build();
     }
 
     /**
@@ -104,18 +126,23 @@ public class GestorClienteServicio {
      * @param cliente representa el objeto de la entidad Cliente
      * @return ClienteDTO
      */
-    private ClienteDTO convertirAClienteDTO(Cliente cliente) {
+    private ClienteDTO convertirAClienteDTO(Cliente cliente) throws DatoInvalidoClienteException {
         ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(cliente.getId());
-        clienteDTO.setPrimerNombre(cliente.getPrimerNombre());
-        clienteDTO.setSegundoNombre(cliente.getSegundoNombre());
-        clienteDTO.setPrimerApellido(cliente.getPrimerApellido());
-        clienteDTO.setSegundoApellido(cliente.getSegundoApellido());
-        clienteDTO.setCorreo(cliente.getCorreo());
-        clienteDTO.setDireccion(cliente.getDireccion());
-        clienteDTO.setTelefono(cliente.getTelefono());
-        clienteDTO.setPais(cliente.getPais());
-        clienteDTO.setGentilicio(cliente.getGentilicio());
+        try {
+            clienteDTO.setPrimerNombre(cliente.getPrimerNombre());
+            clienteDTO.setSegundoNombre(cliente.getSegundoNombre() != null ? cliente.getSegundoNombre() : "");
+            clienteDTO.setPrimerApellido(cliente.getPrimerApellido());
+            clienteDTO.setSegundoApellido(cliente.getSegundoApellido() != null ? cliente.getSegundoApellido() : "");
+            clienteDTO.setCorreo(cliente.getCorreo());
+            clienteDTO.setDireccion(cliente.getDireccion());
+            clienteDTO.setTelefono(cliente.getTelefono());
+            clienteDTO.setPais(cliente.getPais());
+            clienteDTO.setGentilicio(cliente.getGentilicio());
+        } catch (DatoInvalidoClienteException e) {
+            //return null;
+        }
+
         return clienteDTO;
     }
 
@@ -131,17 +158,22 @@ public class GestorClienteServicio {
         cliente.setId(clienteDTO.getId());
         try {
             cliente.setPrimerNombre(clienteDTO.getPrimerNombre());
-            cliente.setSegundoNombre(clienteDTO.getSegundoNombre());
+            cliente.setSegundoNombre(clienteDTO.getSegundoNombre() != null ? clienteDTO.getSegundoNombre() : "");
             cliente.setPrimerApellido(clienteDTO.getPrimerApellido());
-            cliente.setSegundoApellido(clienteDTO.getSegundoApellido());
+            cliente.setSegundoApellido(clienteDTO.getSegundoApellido() != null ? clienteDTO.getSegundoApellido() : "");
             cliente.setCorreo(clienteDTO.getCorreo());
             cliente.setDireccion(clienteDTO.getDireccion());
             cliente.setTelefono(clienteDTO.getTelefono());
             cliente.setPais(clienteDTO.getPais());
             cliente.setGentilicio(clienteDTO.getGentilicio());
-        } catch (DatoInvalidoClienteException | TelefonoInvalidoException e) {
-            throw new RuntimeException(e);
+        } catch (DatoInvalidoClienteException e) {
+            //return null;
         }
         return cliente;
+    }
+
+    public String obtenerGentiliciosPorPais(String codigoPais){
+        String gentilicio = gentilicioServicio.obtenerGentilicioPorPais(codigoPais);
+        return gentilicio;
     }
 }
