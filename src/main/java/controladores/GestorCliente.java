@@ -10,6 +10,13 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import servicios.GestorClienteServicio;
 
+/**
+ * Esta clase actua como controlador y posee los endpoints principales de la aplicacion.
+ *
+ * @author Bladimir Baez
+ * @version 1.0.0
+ */
+
 @Path("/api/clientes")
 public class GestorCliente {
 

@@ -1,6 +1,10 @@
 # Gestor Clientes API
 
-Consiste en un servicio API para la gestion de clientes. Este proyecto utiliza `Quarkus`, un framework de Java.
+Consiste en un servicio API para la gestion de clientes, el cual busca eficientizar los procesos. 
+Este proyecto utiliza `Quarkus`, un framework de Java.
+
+## Diagrama de componentes principales de la aplicacion
+![](src/main/resources/diagrama_gestorclientes_v1.PNG)
 
 Entre los endpoints principales:
 
@@ -41,9 +45,17 @@ En caso de generar un _über-jar_, ejecutar el comando siguiente:
 
 La app, empaquetada como _über-jar_, es ejecutable mediante `java -jar target/*-runner.jar`.
 
+## Ejecutar pruebas
+
+Para la ejecucion de pruebas, esto se realiza mediante el comando:
+
+```shell script
+./mvnw test
+```
+
 ## Creando un ejecutable nativo
 
-Se puede lograr mediante el comando:
+Opcionalmente, se puede lograr mediante el comando:
 
 ```shell script
 ./mvnw package -Dnative

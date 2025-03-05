@@ -15,7 +15,14 @@ public class Gentilicio {
     @Id
     @GeneratedValue
     private Long id;
-    private String descripcion;
+    private String gentilicio;
+
+    public Gentilicio() {
+    }
+
+    public Gentilicio(String gentilicio) {
+        this.gentilicio = gentilicio;
+    }
 
     public void setId(Long id) {
         this.id = id;
@@ -25,11 +32,19 @@ public class Gentilicio {
         return id;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getGentilicio() {
+        return gentilicio;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setGentilicio(String gentilicio) {
+        this.gentilicio = gentilicio;
+    }
+
+    @Override
+    public String toString() {
+        return "Gentilicio{" +
+                "id=" + id +
+                ", gentilicio='" + gentilicio + '\'' +
+                '}';
     }
 }

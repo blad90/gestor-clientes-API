@@ -8,13 +8,14 @@ import org.hibernate.annotations.CascadeType;
 
 import java.io.Serializable;
 
-/** Esta clase representa la entidad Cliente, la cual incluye
+/**
+ * Esta clase representa la entidad Cliente, la cual incluye
  * atributos basicos, asi como atributos compuestos como Correo,
  * Direccion, Telefono, Pais y Gentilicio.
  *
  * @author Bladimir Baez
  * @version 1.0.0
- * */
+ */
 @Entity
 public class Cliente extends PanacheEntity implements Serializable {
     @GeneratedValue
@@ -33,7 +34,7 @@ public class Cliente extends PanacheEntity implements Serializable {
     private Direccion direccion;
 
     @OneToOne
-    @Cascade(CascadeType.ALL)
+    @Cascade({CascadeType.ALL})
     private Telefono telefono;
 
     @OneToOne
@@ -60,50 +61,33 @@ public class Cliente extends PanacheEntity implements Serializable {
         return primerNombre;
     }
 
-    public void setPrimerNombre(String primerNombre) throws DatoInvalidoClienteException {
-        if(primerNombre == null || !primerNombre.matches("[a-zA-Z]+") || primerNombre.length() < 3) {
-            throw new DatoInvalidoClienteException("El primer nombre del cliente es invalido.");
-        } else {
-            this.primerNombre = primerNombre;
-        }
+    public void setPrimerNombre(String primerNombre) {
+        this.primerNombre = primerNombre;
     }
 
     public String getSegundoNombre() {
-        return segundoNombre;
+        if (segundoNombre != null) return segundoNombre;
+        return "";
     }
 
-    public void setSegundoNombre(String segundoNombre) throws DatoInvalidoClienteException{
-        if(segundoNombre == null || segundoNombre.isEmpty()) this.segundoNombre = "N/A";
-        else if(!segundoNombre.matches("[a-zA-Z]+") || segundoNombre.length() < 3) {
-            throw new DatoInvalidoClienteException("El segundo nombre del cliente es invalido.");
-        } else {
-            this.segundoNombre = segundoNombre;
-        }
+    public void setSegundoNombre(String segundoNombre) throws DatoInvalidoClienteException {
+        this.segundoNombre = segundoNombre;
     }
 
     public String getPrimerApellido() {
         return primerApellido;
     }
 
-    public void setPrimerApellido(String primerApellido) throws DatoInvalidoClienteException{
-        if(primerApellido == null || !primerApellido.matches("[a-zA-Z]+") || primerApellido.length() < 3) {
-            throw new DatoInvalidoClienteException("El primer apellido del cliente es invalido.");
-        } else {
-            this.primerApellido = primerApellido;
-        }
+    public void setPrimerApellido(String primerApellido) throws DatoInvalidoClienteException {
+        this.primerApellido = primerApellido;
     }
 
     public String getSegundoApellido() {
         return segundoApellido;
     }
 
-    public void setSegundoApellido(String segundoApellido) throws DatoInvalidoClienteException{
-        if(segundoApellido == null || segundoApellido.isEmpty()) this.segundoApellido = "N/A";
-        else if(!segundoApellido.matches("[a-zA-Z]+") || segundoApellido.length() < 3) {
-            throw new DatoInvalidoClienteException("El segundo apellido del cliente es invalido.");
-        } else {
-            this.segundoApellido = segundoApellido;
-        }
+    public void setSegundoApellido(String segundoApellido) throws DatoInvalidoClienteException {
+        this.segundoApellido = segundoApellido;
     }
 
     public Correo getCorreo() {

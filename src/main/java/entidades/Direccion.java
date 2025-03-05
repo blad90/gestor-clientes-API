@@ -25,6 +25,14 @@ public class Direccion {
     @Cascade(CascadeType.ALL)
     private Pais pais;
 
+    public Direccion() {
+    }
+
+    public Direccion(String calle, String ciudad) {
+        this.calle = calle;
+        this.ciudad = ciudad;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }

@@ -1,5 +1,6 @@
 package servicios;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.ClienteDTO;
 import entidades.Cliente;
 import entidades.Gentilicio;
@@ -10,8 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import controladores.GestorCliente;
 import repositorios.ClienteRepositorio;
+import utils.GentilicioExtractorJson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +33,6 @@ public class GestorClienteServicio {
     ClienteRepositorio clienteRepositorio;
 
     @Inject
-    GestorCliente gestorCliente;
-
-    @Inject
     @RestClient
     IGentilicioServicio gentilicioServicio;
 
@@ -46,40 +44,41 @@ public class GestorClienteServicio {
     }
 
     public Response obtenerClientes() {
-            List<ClienteDTO> clientesDTOExistentes = clienteRepositorio.listAll().stream().map(c -> {
-                try {
-                    return convertirAClienteDTO(c);
-                } catch (DatoInvalidoClienteException e) {
-                    throw new RuntimeException(e);
-                }
-            }).toList();
-            return Response.ok(clientesDTOExistentes).build();
+        List<ClienteDTO> clientesDTOExistentes = clienteRepositorio.listAll().stream().map(c -> {
+            try {
+                return convertirAClienteDTO(c);
+            } catch (DatoInvalidoClienteException | JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }).toList();
+        if(clientesDTOExistentes.isEmpty()) return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok(clientesDTOExistentes).build();
     }
 
     public Response obtenerClientesPorPais(String codigoPais) {
         List<ClienteDTO> clientesPorPais = new ArrayList<>();
-        for(Cliente cliente: clienteRepositorio.listAll()){
-            try{
-                if(cliente.getPais().getCodigoPais().equals(codigoPais)){
+        for (Cliente cliente : clienteRepositorio.listAll()) {
+            try {
+                if (cliente.getPais() != null && cliente.getPais().getCodigoPais().equals(codigoPais)) {
                     clientesPorPais.add(convertirAClienteDTO(cliente));
                 }
-            } catch (DatoInvalidoClienteException e){
+            } catch (DatoInvalidoClienteException | JsonProcessingException e) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
             }
         }
+        if(clientesPorPais.isEmpty()) return Response.status(Response.Status.NOT_FOUND).build();
         return Response.ok(clientesPorPais).build();
     }
 
     public Response obtenerClientePorId(Long id) {
         Cliente clienteAObtener = clienteRepositorio.findById(id);
-        ClienteDTO clienteDTO = new ClienteDTO();
+        ClienteDTO clienteDTO;
         if (clienteAObtener != null) {
             try {
                 clienteDTO = convertirAClienteDTO(clienteAObtener);
                 return Response.ok(clienteDTO).build();
-            } catch (DatoInvalidoClienteException e) {
-//                throw new ClienteNoEncontradoException("Cliente con el ID# " + id + " no existe.");
-                return Response.status(Response.Status.NOT_FOUND).build();
+            } catch (DatoInvalidoClienteException | JsonProcessingException e) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
             }
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -100,10 +99,11 @@ public class GestorClienteServicio {
 
             try {
                 clienteDTOActualizado = convertirAClienteDTO(clienteParaModificar);
-            } catch (DatoInvalidoClienteException e) {
+            } catch (DatoInvalidoClienteException | JsonProcessingException e) {
                 return Response.noContent().build();
             }
-        } return Response.ok(clienteDTOActualizado).build();
+        }
+        return Response.ok(clienteDTOActualizado).build();
     }
 
     @Transactional
@@ -126,22 +126,19 @@ public class GestorClienteServicio {
      * @param cliente representa el objeto de la entidad Cliente
      * @return ClienteDTO
      */
-    private ClienteDTO convertirAClienteDTO(Cliente cliente) throws DatoInvalidoClienteException {
+    private ClienteDTO convertirAClienteDTO(Cliente cliente) throws DatoInvalidoClienteException, JsonProcessingException {
         ClienteDTO clienteDTO = new ClienteDTO();
         clienteDTO.setId(cliente.getId());
-        try {
-            clienteDTO.setPrimerNombre(cliente.getPrimerNombre());
-            clienteDTO.setSegundoNombre(cliente.getSegundoNombre() != null ? cliente.getSegundoNombre() : "");
-            clienteDTO.setPrimerApellido(cliente.getPrimerApellido());
-            clienteDTO.setSegundoApellido(cliente.getSegundoApellido() != null ? cliente.getSegundoApellido() : "");
-            clienteDTO.setCorreo(cliente.getCorreo());
-            clienteDTO.setDireccion(cliente.getDireccion());
-            clienteDTO.setTelefono(cliente.getTelefono());
-            clienteDTO.setPais(cliente.getPais());
-            clienteDTO.setGentilicio(cliente.getGentilicio());
-        } catch (DatoInvalidoClienteException e) {
-            //return null;
-        }
+
+        clienteDTO.setPrimerNombre(cliente.getPrimerNombre());
+        clienteDTO.setSegundoNombre(cliente.getSegundoNombre());
+        clienteDTO.setPrimerApellido(cliente.getPrimerApellido());
+        clienteDTO.setSegundoApellido(cliente.getSegundoApellido());
+        clienteDTO.setCorreo(cliente.getCorreo());
+        clienteDTO.setDireccion(cliente.getDireccion());
+        clienteDTO.setTelefono(cliente.getTelefono());
+        clienteDTO.setPais(cliente.getPais());
+        clienteDTO.setGentilicio(new Gentilicio(obtenerGentiliciosPorPais((cliente.getPais().getCodigoPais()))));
 
         return clienteDTO;
     }
@@ -165,15 +162,17 @@ public class GestorClienteServicio {
             cliente.setDireccion(clienteDTO.getDireccion());
             cliente.setTelefono(clienteDTO.getTelefono());
             cliente.setPais(clienteDTO.getPais());
-            cliente.setGentilicio(clienteDTO.getGentilicio());
-        } catch (DatoInvalidoClienteException e) {
-            //return null;
+
+            Gentilicio gentilicio = new Gentilicio(obtenerGentiliciosPorPais(clienteDTO.getPais().getCodigoPais()));
+
+            cliente.setGentilicio(gentilicio);
+        } catch (DatoInvalidoClienteException | JsonProcessingException e) {
+            Response.status(Response.Status.BAD_REQUEST);
         }
         return cliente;
     }
 
-    public String obtenerGentiliciosPorPais(String codigoPais){
-        String gentilicio = gentilicioServicio.obtenerGentilicioPorPais(codigoPais);
-        return gentilicio;
+    public String obtenerGentiliciosPorPais(String codigoPais) throws JsonProcessingException {
+        return GentilicioExtractorJson.extraerValorGentilicio(gentilicioServicio.obtenerGentilicioPorPais(codigoPais));
     }
 }

@@ -15,7 +15,6 @@ public class Pais {
     @Id
     @GeneratedValue
     private Long id;
-    private String nombrePais;
     private String codigoPais;
 
     public Pais() {
@@ -23,14 +22,6 @@ public class Pais {
 
     public Pais(String codigoPais) {
         this.codigoPais = codigoPais;
-    }
-
-    public String getNombrePais() {
-        return nombrePais;
-    }
-
-    public void setNombrePais(String nombrePais) {
-        this.nombrePais = nombrePais;
     }
 
     public void setId(Long id) {
@@ -53,7 +44,6 @@ public class Pais {
     public String toString() {
         return "Pais{" +
                 "id=" + id +
-                ", nombrePais='" + nombrePais + '\'' +
                 ", codigoPais='" + codigoPais + '\'' +
                 '}';
     }

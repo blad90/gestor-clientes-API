@@ -20,7 +20,7 @@ public class GentilicioExtractorJson {
      * en dicho idioma. Ejemplo: "DOM" -> "Dominican"
      *
      * @param json representa la respuesta del API en formato JSON de la informacion del gentilicio
-     * @return String
+     * @return String - el valor en cadena de caracteres o texto del gentilicio.
      */
     public static String extraerValorGentilicio(String json) throws JsonProcessingException {
         List<JsonNode> nodos = objectMapper.readValue(json, List.class);
