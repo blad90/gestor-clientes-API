@@ -4,6 +4,7 @@ import excepciones.TelefonoInvalidoException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 
 /** Esta clase representa la entidad Telefono, la cual
  * incluye un metodo de utilidad que permite validar
@@ -17,6 +18,7 @@ public class Telefono {
     @Id
     @GeneratedValue
     private Long id;
+    @NotBlank(message = "El numero de telefono es REQUERIDO")
     private String numeroTelefono;
 
     public Telefono() {

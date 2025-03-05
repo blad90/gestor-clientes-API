@@ -2,6 +2,7 @@ package controladores;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dto.ClienteDTO;
+import jakarta.validation.ConstraintViolation;
 import utils.GentilicioExtractorJson;
 import excepciones.ClienteNoEncontradoException;
 import jakarta.inject.Inject;
@@ -9,6 +10,9 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import servicios.GestorClienteServicio;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Esta clase actua como controlador y posee los endpoints principales de la aplicacion.

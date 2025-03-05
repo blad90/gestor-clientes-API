@@ -4,6 +4,7 @@ import excepciones.CorreoInvalidoException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
 
 /** Esta clase representa la entidad Correo, la cual
  * incluye un metodo de utilidad que permite validar
@@ -17,6 +18,7 @@ public class Correo {
     @Id
     @GeneratedValue
     private Long id;
+    @NotBlank(message = "El correo es REQUERIDO")
     private String usuarioCorreo;
 
     public Correo() {

@@ -1,6 +1,7 @@
 package dto;
 
 import entidades.*;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Esta clase representa la version del DTO (Data Transfer Object) de la entidad Cliente
@@ -17,7 +18,6 @@ public class ClienteDTO {
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
-
     private Correo correo;
     private Direccion direccion;
     private Telefono telefono;

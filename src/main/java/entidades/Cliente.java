@@ -3,6 +3,7 @@ package entidades;
 import excepciones.DatoInvalidoClienteException;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -20,8 +21,10 @@ import java.io.Serializable;
 public class Cliente extends PanacheEntity implements Serializable {
     @GeneratedValue
     private Long id;
+    @NotBlank(message = "El primer nombre es REQUERIDO")
     private String primerNombre;
     private String segundoNombre;
+    @NotBlank(message = "El primer apellido es REQUERIDO")
     private String primerApellido;
     private String segundoApellido;
 

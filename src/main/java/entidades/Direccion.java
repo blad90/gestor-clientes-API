@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
@@ -18,7 +19,9 @@ public class Direccion {
     @Id
     @GeneratedValue
     private Long id;
+    @NotBlank(message = "Calle es REQUERIDA")
     private String calle;
+    @NotBlank(message = "Ciudad es REQUERIDA")
     private String ciudad;
 
     @OneToOne
